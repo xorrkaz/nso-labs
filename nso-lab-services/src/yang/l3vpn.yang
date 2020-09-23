@@ -1,0 +1,138 @@
+module l3vpn {
+  namespace "http://com/example/l3vpn";
+  prefix l3vpn;
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+  import tailf-common {
+    prefix tailf;
+  }
+
+  list l3vpn {
+    key name;
+
+    uses ncs:service-data;
+    ncs:servicepoint "l3vpn";
+
+    leaf name {
+      type string;
+    }
+
+    list site {
+      key name;
+
+      leaf name {
+        type string;
+      }
+
+      leaf vlan-id {
+        type uint16 {
+          range "1..4094";
+        }
+        tailf:info "Specify the 802.1q VLAN tag used between the PE and the CE";
+      }
+
+      container pe {
+        tailf:info "Provider Edge configuration";
+
+        leaf device {
+          tailf:info "PE device";
+          type leafref {
+            path "/ncs:devices/ncs:device/ncs:name";
+          }
+        }
+
+        leaf interface-to-ce {
+          type string;
+        }
+
+        leaf pe-address {
+          tailf:info "PE side IP address";
+          type inet:ipv4-address;
+        }
+
+        container routing {
+          leaf-list static {
+            tailf:info "List of static routes to advertise over the VPN";
+            type inet:ip-prefix;
+          }
+
+          leaf bgp {
+            tailf:info "Run BGP between PE and CE";
+            type boolean;
+          }
+
+          container redistribute {
+            when "../bgp";
+            leaf static {
+              type empty;
+            }
+
+            leaf connected {
+              type empty;
+            }
+          } 
+        }
+      }
+
+      container ce {
+        tailf:info "Customer Edge configuration";
+
+        leaf device {
+          tailf:info "Device to be used as the CE router";
+          type leafref {
+            path "/ncs:devices/ncs:device/ncs:name";
+          }
+        }
+        
+        leaf interface-to-pe {
+          type string;
+        }
+
+        leaf address {
+          type inet:ipv4-address;
+        }
+
+        leaf asn {
+          type uint32;
+        }
+
+        container routing {
+          leaf bgp {
+            type boolean;
+          }
+
+          list network {
+            when "../bgp";
+            key "prefix mask";
+
+            leaf prefix {
+              type inet:ipv4-address;
+            }
+
+            leaf mask {
+              type inet:ipv4-address;
+            }
+          }
+
+          list static {
+            key "prefix mask";
+
+            leaf prefix {
+              type inet:ipv4-address;
+            }
+
+            leaf mask {
+              type inet:ipv4-address;
+            }
+          }
+        }
+      }
+    }
+  }
+}
