@@ -1,0 +1,36 @@
+module site {
+  namespace "http://com/example/site";
+  prefix site;
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+  list site {
+    key "name";
+    uses ncs:service-data;
+    ncs:servicepoint "site";
+    leaf name {
+      type string;
+    }
+    leaf street {
+      mandatory true;
+      type string;
+    }
+    leaf city {
+      mandatory true;
+      type string;
+    }
+    leaf state {
+      type string;
+    }
+    leaf postal-code {
+      type string {
+        pattern '\d\d\d\d\d';
+      }
+    }
+  }
+}
