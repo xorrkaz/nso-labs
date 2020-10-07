@@ -3,10 +3,14 @@
     <name>{$PE_DEVICE}</name>
     <config>
       <interface xmlns="http://tail-f.com/ned/cisco-ios-xr">
+        <GigabitEthernet>
+          <id>{$PE_INTF_NUM}</id>
+          <description>L3VPN {$VPN_NAME}</description>
+          <shutdown tags="delete"/>
+        </GigabitEthernet>
         <GigabitEthernet-subinterface>
           <GigabitEthernet>
             <id>{$PE_INTF_NUM}.{$LINK_VLAN}</id>
-            <description>L3VPN {$VPN_NAME}</description>
             <encapsulation>
               <dot1q>
                 <vlan-id>{$LINK_VLAN}</vlan-id>
